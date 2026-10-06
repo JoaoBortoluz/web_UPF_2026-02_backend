@@ -1,0 +1,195 @@
+@baseUrl = http://localhost:3000/api
+
+### ===================================================
+### 1. AUTENTICAÇÃO (LOGIN PÚBLICO)
+### ===================================================
+
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@restaurant.com",
+  "password": "admin123"
+}
+
+### Variável dinâmica capturando o Token JWT retornado no login
+@authToken = {{login.response.body.access_token}}
+
+
+### ===================================================
+### 2. GERENCIAMENTO DE FUNCIONÁRIOS (REQUER TOKEN JWT)
+### ===================================================
+
+### Cadastrar uma nova Recepcionista / Garçom
+POST {{baseUrl}}/auth/register
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Maria Recepcionista",
+  "email": "recepcao@restaurante.com",
+  "password": "password123",
+  "role": "RECEPTIONIST"
+}
+
+
+### ===================================================
+### 3. GERENCIAMENTO DE MESAS
+### ===================================================
+
+### Criar Mesa 1
+POST {{baseUrl}}/tables
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "number": 1,
+  "capacity": 4
+}
+
+### Criar Mesa 2
+POST {{baseUrl}}/tables
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "number": 2,
+  "capacity": 2
+}
+
+### Listar todas as Mesas
+GET {{baseUrl}}/tables
+Authorization: Bearer {{authToken}}
+
+### Buscar detalhes da Mesa 1 por ID
+GET {{baseUrl}}/tables/1
+Authorization: Bearer {{authToken}}
+
+
+### ===================================================
+### 4. GERENCIAMENTO DO CARDÁPIO DE PRODUTOS
+### ===================================================
+
+### Cadastrar Hambúrguer Artesanal
+POST {{baseUrl}}/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Hambúrguer Clássico",
+  "description": "Pão brioche, blend bovino de 180g, queijo cheddar e bacon crocante",
+  "price": 38.50,
+  "category": "Lanches"
+}
+
+### Cadastrar Batata Frita
+POST {{baseUrl}}/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Batata Frita Rústica",
+  "description": "Porção de batata frita temperada com alecrim e páprica",
+  "price": 22.00,
+  "category": "Porções"
+}
+
+### Cadastrar Refrigerante
+POST {{baseUrl}}/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Refrigerante Lata 350ml",
+  "description": "Coca-Cola gelada",
+  "price": 7.00,
+  "category": "Bebidas"
+}
+
+### Listar todos os Produtos
+GET {{baseUrl}}/products
+Authorization: Bearer {{authToken}}
+
+### Buscar Produto por ID (ID: 1)
+GET {{baseUrl}}/products/1
+Authorization: Bearer {{authToken}}
+
+
+### ===================================================
+### 5. RESERVAS DE MESAS
+### ===================================================
+
+### Criar nova Reserva para a Mesa 2
+POST {{baseUrl}}/reservations
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "customerName": "Carlos Silva",
+  "customerPhone": "(54) 99988-7766",
+  "dateTime": "2026-10-10T20:00:00.000Z",
+  "guestCount": 2,
+  "tableId": 2
+}
+
+### Listar todas as Reservas
+GET {{baseUrl}}/reservations
+Authorization: Bearer {{authToken}}
+
+### Buscar Reserva por ID
+GET {{baseUrl}}/reservations/1
+Authorization: Bearer {{authToken}}
+
+
+### ===================================================
+### 6. PEDIDOS / COMANDAS DE MESA
+### ===================================================
+
+### Abrir um Pedido para a Mesa 1 (Garçom ID: 1)
+# @name createOrder
+POST {{baseUrl}}/orders
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "tableId": 1,
+  "userId": 1
+}
+
+### Capturar o ID do Pedido recém-criado
+@orderId = {{createOrder.response.body.id}}
+
+### Adicionar Hambúrguer ao Pedido
+POST {{baseUrl}}/orders/{{orderId}}/items
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 2,
+  "notes": "Ponto da carne ao ponto, sem cebola"
+}
+
+### Adicionar Bebidas ao Pedido
+POST {{baseUrl}}/orders/{{orderId}}/items
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": 3,
+  "quantity": 2,
+  "notes": "Com gelo e limão"
+}
+
+### Listar todos os Pedidos
+GET {{baseUrl}}/orders
+Authorization: Bearer {{authToken}}
+
+### Consultar detalhes da Comanda (Pedido)
+GET {{baseUrl}}/orders/{{orderId}}
+Authorization: Bearer {{authToken}}
+
+### Fechar a Conta e Liberar a Mesa
+PATCH {{baseUrl}}/orders/{{orderId}}/close
+Authorization: Bearer {{authToken}}

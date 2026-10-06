@@ -1,0 +1,30 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module.js';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  // Inicialização da aplicação NestJS
+  const app = await NestFactory.create(AppModule);
+
+  // Prefixo global para todas as rotas da API (ex: /api/auth/login)
+  app.setGlobalPrefix('api');
+
+  // Habilita CORS para permitir requisições do frontend/mobile
+  app.enableCors();
+
+  // Validação global com class-validator
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Inicia o servidor na porta definida no .env ou 3000 por padrão
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  console.log(`Servidor rodando em http://localhost:${port}/api`);
+}
+
+bootstrap();

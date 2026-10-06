@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../prisma/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Enums para controle estrito de tipos
+enum Role {
+  ADMIN
+  MANAGER
+  WAITER
+  RECEPTIONIST
+}
+
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum OrderStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+// Tabela de Usuários (Apenas funcionários/equipe)
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(WAITER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 1. Tabela de Mesas
+model Table {
+  id           Int           @id @default(autoincrement())
+  number       Int           @unique
+  capacity     Int
+  status       TableStatus   @default(AVAILABLE)
+  reservations Reservation[]
+  orders       Order[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// 2. Tabela de Reservas (Clientes sem conta de usuário)
+model Reservation {
+  id            Int               @id @default(autoincrement())
+  customerName  String
+  customerPhone String
+  dateTime      DateTime
+  guestCount    Int
+  status        ReservationStatus @default(PENDING)
+  
+  tableId       Int?
+  table         Table?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+// 3. Tabela de Produtos (Cardápio)
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  category    String
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// 4. Tabela de Comandas / Pedidos
+model Order {
+  id          Int         @id @default(autoincrement())
+  openedAt    DateTime    @default(now())
+  status      OrderStatus @default(OPEN)
+  totalAmount Float       @default(0.0)
+  
+  tableId     Int
+  table       Table       @relation(fields: [tableId], references: [id])
+  
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// 5. Tabela de Itens da Comanda
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int     @default(1)
+  notes     String?
+  unitPrice Float
+  
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
