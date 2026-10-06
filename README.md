@@ -105,7 +105,12 @@ O sistema gerencia as rotinas de atendimento de um restaurante:
 
 ## 🧪 Como Testar o Projeto
 
-### Opção 1: Pelo arquivo `restaurant.http` (Recomendado no VS Code)
+### Opção 1: Pelo Swagger docs
+1. Acesse http://localhost:3000/api/docs/
+2. Insira em `Authorize` o token gerado pelo POST http://localhost:3000/api/auth/login no arquivo `restaurant.http`, para conseguir testar as rotas protegidas.
+3. Visualize os Dtos e teste a API.
+
+### Opção 2: Pelo arquivo `restaurant.http` (Recomendado no VS Code)
 O arquivo [restaurant.http](file:///c:/ProgramacaoWebMobile/web_UPF_2026-02_backend-main/web_UPF_2026-02_backend-main/restaurant.http) contém todas as requisições prontas em ordem lógica:
 1. Instale a extensão **REST Client** no VS Code (ou use a extensão **Thunder Client**).
 2. Abra o arquivo `restaurant.http`.
@@ -116,14 +121,14 @@ O arquivo [restaurant.http](file:///c:/ProgramacaoWebMobile/web_UPF_2026-02_back
 4. O token JWT retornado é capturado automaticamente na variável `@authToken`.
 5. Em seguida, clique em **Send Request** nas demais requisições na ordem (Mesas, Produtos, Reservas, Pedidos, Adicionar Itens e Fechar Comanda).
 
-### Opção 2: Pelo Postman / Insomnia / cURL
+### Opção 3: Pelo Postman / Insomnia / cURL
 Basta enviar as requisições para `http://localhost:3000/api/<rota>`. Lembre-se de adicionar o cabeçalho:
 ```
 Authorization: Bearer <seu_token_jwt>
 ```
 exceto para a rota pública `/api/auth/login`.
 
-### Opção 3: Testes Automatizados e Linter
+### Opção 4: Testes Automatizados e Linter
 Você também pode rodar a suíte de testes automatizados e o linter pelo terminal:
 ```bash
 # Rodar testes unitários
