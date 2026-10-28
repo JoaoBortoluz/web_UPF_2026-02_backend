@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { LoginDto } from '../dtos/login-dto.js';
 import { RegisterStaffDto } from '../dtos/register-staff-dto.js';
@@ -12,6 +12,12 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterStaffDto) {
     return this.authService.registerStaff(dto);
+  }
+
+  // Rota para listar todos os funcionários cadastrados (requer autenticação)
+  @Get('staff')
+  findAllStaff() {
+    return this.authService.findAllStaff();
   }
 
   // Rota pública para login de funcionários e obtenção de token JWT

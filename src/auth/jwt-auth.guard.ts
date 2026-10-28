@@ -15,8 +15,8 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const url = String(request.originalUrl || request.url);
 
-    // A rota de login de funcionários é pública
-    if (url.includes('/auth/login')) {
+    // A rota de login de funcionários e as rotas públicas do cardápio do cliente são públicas
+    if (url.includes('/auth/login') || url.includes('/public/')) {
       return true;
     }
 

@@ -18,6 +18,12 @@ export class ReservationsService {
           `Mesa com ID ${dto.tableId} não encontrada`,
         );
       }
+      if (table.status === 'AVAILABLE') {
+        await this.prisma.table.update({
+          where: { id: dto.tableId },
+          data: { status: 'RESERVED' },
+        });
+      }
     }
 
     return this.prisma.reservation.create({
@@ -26,8 +32,10 @@ export class ReservationsService {
         customerPhone: dto.customerPhone,
         dateTime: new Date(dto.dateTime),
         guestCount: dto.guestCount,
+        status: 'CONFIRMED',
         tableId: dto.tableId ?? null,
       },
+      include: { table: true },
     });
   }
 

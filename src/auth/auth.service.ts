@@ -44,6 +44,20 @@ export class AuthService {
     return result;
   }
 
+  // Lista todos os funcionários cadastrados sem expor a senha
+  async findAllStaff() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   // Login de funcionário gerando o token de acesso JWT
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
